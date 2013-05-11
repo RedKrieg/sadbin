@@ -5,6 +5,7 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.redis import Redis
 from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField, SelectField
+from flask.ext.wtf.recaptcha import RecaptchaField
 from wtforms.validators import Length, InputRequired, NumberRange
 from pygments import highlight
 from pygments.lexers import guess_lexer, get_lexer_by_name, get_all_lexers
@@ -23,6 +24,8 @@ if 'MAX_UPLOAD_SIZE' not in app.config:
     app.config['MAX_UPLOAD_SIZE'] = 2**18
 if 'DEFAULT_EXPIRE_TIME' not in app.config:
     app.config['DEFAULT_EXPIRE_TIME'] = 3600 * 365
+if 'MAX_TITLE_LENGTH' not in app.config:
+    app.config['MAX_TITLE_LENGTH'] = 256
 
 def get_lexer_list():
     """Iterator which yields the first lexer short-name and the lexer long
@@ -45,6 +48,17 @@ def get_duration_list():
     yield (u'-1', "Never")
 
 class Paste(Form):
+    title = TextField(
+        u'Title:',
+        [
+            Length(
+                max = app.config['MAX_TITLE_LENGTH'],
+                message = u"Max title length is %d" % (
+                    app.config['MAX_TITLE_LENGTH']
+                )
+            )
+        ]
+    )
     language = SelectField(
         u'Language:',
         choices = [ i for i in get_lexer_list() ]
@@ -67,16 +81,20 @@ class Paste(Form):
             )
         ]
     )
+    captcha = RecaptchaField(
+        u'Recaptcha:'
+    )
 
-def save_paste(key, paste_data, language = u'none', expire_in = None):
+def save_paste(key, paste_data, language = u'none', title = u'', expire_in = None):
     if not expire_in:
         expire_in = app.config['DEFAULT_EXPIRE_TIME']
     data = {
         'paste_content': paste_data,
-        'language': language
+        'language': language,
+        'title': title
     }
     redis.hmset(key, data)
-    if expire_in > 0:
+    if expire_in >= 0:
         redis.expire(key, expire_in)
 
 def highlight_content(content, lexer_name = None):
@@ -116,6 +134,7 @@ def get_hash(paste_hash = None):
     form = Paste()
     if form.validate_on_submit():
         paste_data = form.paste_content.data
+        paste_title = form.title.data
         new_paste_hash = sha1(paste_data).hexdigest()
         if new_paste_hash != paste_hash:
             if form.language.data == u'none':
@@ -126,6 +145,7 @@ def get_hash(paste_hash = None):
                 new_paste_hash,
                 paste_data,
                 language = language,
+                title = paste_title,
                 expire_in = int(form.expire_time.data)
             )
             return flask.redirect(
