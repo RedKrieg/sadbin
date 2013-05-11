@@ -3,15 +3,18 @@
 {% block head %}
 {{- super() -}}
 <link href="/static/style.css" rel="stylesheet">
+<link href="/static/pygments-solarized-dark.css" rel="stylesheet">
 {% endblock %}
 {% block body %}
 {{- super() -}}
-<div class="container-fluid">
-    <div class="span2">
-        {{ message }}
-    </div>
-    <div class="span10">
-        {{ wtf.quick_form(form) }}
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            {{ message|safe }}
+        </div>
+        <div class="span12">
+            {{ wtf.quick_form(form, class="form form-vertical") }}
+        </div>
     </div>
 </div>
 {% endblock %}

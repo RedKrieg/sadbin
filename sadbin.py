@@ -6,6 +6,9 @@ from flask.ext.redis import Redis
 from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField
 from wtforms.validators import Length, InputRequired
+from pygments import highlight
+from pygments.lexers import guess_lexer
+from pygments.formatters import HtmlFormatter
 import flask
 
 app = flask.Flask(__name__)
@@ -69,10 +72,15 @@ def get_hash(paste_hash = None):
                 )
             )
     form.paste_content.data = redis.get(paste_hash)
+    if not form.paste_content.data:
+        return flask.redirect(flask.url_for('main'))
+    lexer = guess_lexer(form.paste_content.data)
+    formatter = HtmlFormatter()
+    hilighted_data = highlight(form.paste_content.data, lexer, formatter)
     return flask.render_template(
         'base.html',
         form = form,
-        message = form.paste_content.data
+        message = hilighted_data
     )
 
 if __name__ == "__main__":
