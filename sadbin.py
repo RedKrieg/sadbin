@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from flask.ext.bootstrap import Bootstrap
+from flask.ext.redis import Redis
 from flask.ext.wtf import Form
 from wtforms import TextAreaField
 import flask
