@@ -1,0 +1,12 @@
+Flask==0.9
+Flask-And-Redis==0.5
+Flask-Bootstrap==2.3.1-1
+Flask-WTF==0.8.3
+Jinja2==2.6
+Pygments==1.6
+WTForms==1.0.4
+Werkzeug==0.8.3
+argparse==1.2.1
+humanize==0.3
+redis==2.7.4
+wsgiref==0.1.2
