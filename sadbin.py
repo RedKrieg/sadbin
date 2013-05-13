@@ -5,7 +5,7 @@ from flask.ext.bootstrap import Bootstrap
 from flask.ext.redis import Redis
 from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField, SelectField
-from flask.ext.wtf.recaptcha import RecaptchaField
+from flask.ext.wtf import RecaptchaField
 from wtforms.validators import Length, InputRequired, NumberRange
 from pygments import highlight
 from pygments.lexers import guess_lexer, get_lexer_by_name, get_all_lexers
