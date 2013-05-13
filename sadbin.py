@@ -26,6 +26,8 @@ if 'DEFAULT_EXPIRE_TIME' not in app.config:
     app.config['DEFAULT_EXPIRE_TIME'] = 3600 * 365
 if 'MAX_TITLE_LENGTH' not in app.config:
     app.config['MAX_TITLE_LENGTH'] = 256
+if 'MAX_AUTHOR_LENGTH' not in app.config:
+    app.config['MAX_AUTHOR_LENGTH'] = 256
 
 def get_lexer_list():
     """Iterator which yields the first lexer short-name and the lexer long
@@ -59,6 +61,17 @@ class Paste(Form):
             )
         ]
     )
+    author = TextField(
+        u'Author:',
+        [
+            Length(
+                max = app.config['MAX_AUTHOR_LENGTH'],
+                message = u"Max author length is %d" % (
+                    app.config['MAX_AUTHOR_LENGTH']
+                )
+            )
+        ]
+    )
     language = SelectField(
         u'Language:',
         choices = [ i for i in get_lexer_list() ]
@@ -85,13 +98,16 @@ class Paste(Form):
         u'Recaptcha:'
     )
 
-def save_paste(key, paste_data, language = u'none', title = u'', expire_in = None):
+def save_paste(key, paste_data,
+               language = u'none', title = u'', author = u'',
+               expire_in = None):
     if not expire_in:
         expire_in = app.config['DEFAULT_EXPIRE_TIME']
     data = {
         'paste_content': paste_data,
         'language': language,
-        'title': title
+        'title': title,
+        'author': author
     }
     redis.hmset(key, data)
     if expire_in >= 0:
@@ -135,7 +151,12 @@ def get_hash(paste_hash = None):
     if form.validate_on_submit():
         paste_data = form.paste_content.data
         paste_title = form.title.data
-        new_paste_hash = sha1(paste_data).hexdigest()
+        paste_author = form.author.data
+        new_paste_hash = sha1(u"%s%s%s" % (
+            paste_author,
+            paste_title,
+            paste_data
+        )).hexdigest()
         if new_paste_hash != paste_hash:
             if form.language.data == u'none':
                 language = guess_lexer(form.paste_content.data).aliases[0]
@@ -146,6 +167,7 @@ def get_hash(paste_hash = None):
                 paste_data,
                 language = language,
                 title = paste_title,
+                author = paste_author,
                 expire_in = int(form.expire_time.data)
             )
             return flask.redirect(
