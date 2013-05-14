@@ -14,6 +14,12 @@ from pygments.util import ClassNotFound
 from humanize import naturalday, naturaltime
 import flask, datetime
 
+# The next three lines of horror are to work around everything in Python2 being
+# non-unicode by default and jinja2 choking because of it.
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 app = flask.Flask(__name__)
 app.config.from_pyfile(u'instance/application.cfg')
 redis = Redis(app)
@@ -122,7 +128,7 @@ def highlight_content(content, lexer_name = None):
         except ClassNotFound:
             lexer = guess_lexer(content)
     formatter = HtmlFormatter()
-    return highlight(content, lexer, formatter)
+    return highlight(content.decode('utf8'), lexer, formatter)
 
 def fill_form_from_db(key, form):
     """Fills a form from the database, returns True if we had to append
@@ -152,11 +158,12 @@ def get_hash(paste_hash = None):
         paste_data = form.paste_content.data
         paste_title = form.title.data
         paste_author = form.author.data
-        new_paste_hash = sha1(u"%s%s%s" % (
+        digestable_message = u"%s%s%s" % (
             paste_author,
             paste_title,
             paste_data
-        )).hexdigest()
+        )
+        new_paste_hash = sha1(digestable_message).hexdigest()
         if new_paste_hash != paste_hash:
             if form.language.data == u'none':
                 language = guess_lexer(form.paste_content.data).aliases[0]
