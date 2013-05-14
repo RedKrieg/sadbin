@@ -133,7 +133,10 @@ def highlight_content(content, lexer_name = None):
 def fill_form_from_db(key, form):
     """Fills a form from the database, returns True if we had to append
     something to the expire_time field of the form."""
-    data = redis.hgetall(key)
+    try:
+        data = redis.hgetall(key)
+    except:
+        data = {}
     for field in [ i.name for i in form ]:
         try:
             form[field].data = data[field]
