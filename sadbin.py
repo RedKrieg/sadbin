@@ -140,15 +140,10 @@ def fill_form_from_db(key, form):
         except:
             pass # Leave default values
     ttl = redis.ttl(key)
-    form.expire_time.data = u'%d' % ttl
-    if form.expire_time.data not in [ i[0] for i in form.expire_time.choices ]:
-        now = datetime.datetime.now()
-        form.expire_time.choices.append((
-            form.expire_time.data,
-            naturaltime(now + datetime.timedelta(seconds=ttl)).capitalize()
-        ))
-        return True
-    return False
+    expire_list = [ int(i[0]) for i in form.expire_time.choices if i[0]!='-1']
+    for expire_time in reversed(expire_list):
+        if ttl < expire_time:
+            form.expire_time.data = u'%d' % expire_time
 
 @app.route(u'/', methods=('GET', 'POST'))
 @app.route(u'/<paste_hash>', methods=('GET', 'POST'))
@@ -183,7 +178,7 @@ def get_hash(paste_hash = None):
                     paste_hash = new_paste_hash
                 )
             )
-    pop_expire = fill_form_from_db(paste_hash, form)
+    fill_form_from_db(paste_hash, form)
     if not form.paste_content.data:
         return flask.render_template(
             'base.html',
@@ -196,8 +191,6 @@ def get_hash(paste_hash = None):
         form = form,
         message = hilighted_data
     )
-    if pop_expire:
-        form.expire_time.choices.pop()
     return rendered_page
 
 if __name__ == "__main__":
