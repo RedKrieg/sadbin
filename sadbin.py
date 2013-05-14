@@ -3,10 +3,12 @@
 from hashlib import sha1
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.redis import Redis
+from flask.ext.login import LoginManager
+from flask.ext.login import login_user, login_required, logout_user
 from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField, SelectField
 from flask.ext.wtf import RecaptchaField
-from wtforms.validators import Length, InputRequired, NumberRange
+from wtforms.validators import Length, InputRequired, NumberRange, Email
 from pygments import highlight
 from pygments.lexers import guess_lexer, get_lexer_by_name, get_all_lexers
 from pygments.formatters import HtmlFormatter
@@ -22,8 +24,16 @@ sys.setdefaultencoding('utf-8')
 
 app = flask.Flask(__name__)
 app.config.from_pyfile(u'instance/application.cfg')
+
+# Flask-And-Redis
 redis = Redis(app)
+
+# Flask-Bootstrap
 Bootstrap(app)
+
+# Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 # Defaults
 if 'MAX_UPLOAD_SIZE' not in app.config:
@@ -100,6 +110,39 @@ class Paste(Form):
             )
         ]
     )
+
+class LoginForm(Form):
+    user_name = TextField(
+        u'Login:',
+        [   
+            Length( 
+                max = app.config['MAX_TITLE_LENGTH'], 
+                message = u"Max title length is %d" % (
+                    app.config['MAX_TITLE_LENGTH']
+                )
+            ),
+            InputRequired(
+                message = u"You must enter a user name."
+            ),
+            Email(
+                message = u"Not a valid email address."
+            )
+        ]
+    )
+    password = TextField(
+        u'Password:',
+        [
+            Length(
+                max = app.config['MAX_PASSWORD_LENGTH'],
+                message = u"Max password length is %d" % (
+                    app.config['MAX_PASSWORD_LENGTH']
+                )
+            ),
+            InputRequired(
+                message = u"You must enter a password."
+            )
+        ]
+    )
     captcha = RecaptchaField(
         u'Recaptcha:'
     )
@@ -131,8 +174,8 @@ def highlight_content(content, lexer_name = None):
     return highlight(content.decode('utf8'), lexer, formatter)
 
 def fill_form_from_db(key, form):
-    """Fills a form from the database, returns True if we had to append
-    something to the expire_time field of the form."""
+    """Fills a form from the database, sets expire_time to the first duration
+    larger than the current TTL."""
     try:
         data = redis.hgetall(key)
     except:
@@ -148,8 +191,35 @@ def fill_form_from_db(key, form):
         if ttl <= expire_time:
             form.expire_time.data = u'%d' % expire_time
 
+@login_manager.user_loader
+def load_user(user_id):
+    user = redis.hgetall(u"sadbin_user:%s" % user_id)
+    if len(user) == 0:
+        return None
+    return user
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        # login and validate the user...
+        login_user(user)
+        flash("Logged in successfully.")
+        return flask.redirect(
+            flask.request.args.get("next") or
+            url_for("get_hash")
+        )
+    return flask.render_template("base.html", form=form)
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return flask.redirect(flask.url_for('login'))
+
 @app.route(u'/', methods=('GET', 'POST'))
 @app.route(u'/<paste_hash>', methods=('GET', 'POST'))
+@login_required
 def get_hash(paste_hash = None):
     form = Paste()
     if form.validate_on_submit():
