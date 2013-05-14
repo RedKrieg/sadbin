@@ -142,7 +142,7 @@ def fill_form_from_db(key, form):
     ttl = redis.ttl(key)
     expire_list = [ int(i[0]) for i in form.expire_time.choices if i[0]!='-1']
     for expire_time in reversed(expire_list):
-        if ttl < expire_time:
+        if ttl <= expire_time:
             form.expire_time.data = u'%d' % expire_time
 
 @app.route(u'/', methods=('GET', 'POST'))
