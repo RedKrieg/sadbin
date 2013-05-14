@@ -14,7 +14,7 @@ pre::-webkit-scrollbar-thumb {
 /* pygments style */
 .highlight .hll { background-color: #ffffcc }
 .highlight  { background: #002B36!important; color: #93A1A1 }
-.highlight pre { background-color: #002B36; }
+.highlight pre { background-color: #002B36; color: #93A1A1 }
 .highlight .c { color: #586E75 } /* Comment */
 .highlight .err { color: #93A1A1 } /* Error */
 .highlight .g { color: #93A1A1 } /* Generic */

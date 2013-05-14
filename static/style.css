@@ -1,5 +1,12 @@
-#paste_content {
-    width: 90%;
+.span12 textarea, .uneditable-input {
+    width: 970px;
+    min-height: 370px;
+}
+.span6 input, .uneditable-input {
+    width: 370px;
+}
+.span6 select {
+    width: 384px;
 }
 body {
     background: #073642;
