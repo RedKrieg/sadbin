@@ -1,3 +1,23 @@
 #paste_content {
-    width: 100%;
+    width: 90%;
 }
+body {
+    background: #073642;
+    color: #586e75;
+    font-family: "monospace";
+}
+.controls select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+    font-family: "monospace";
+    color: #657b83;
+    background: #002b36;
+}
+.form-actions {
+    color: #586e75;
+    background: #073642;
+    border-top: 1px solid #002b36;
+    font-family: "monospace";
+}
+#recaptcha_table {
+    background: #fdf6e3;
+}
+
