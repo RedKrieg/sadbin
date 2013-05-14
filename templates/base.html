@@ -21,7 +21,7 @@
             {{ wtf.form_errors(form, 'only') }}
             {%- for field in form %}
             {% if not field|bootstrap_is_hidden_field %}
-            {% if field.name == "paste_content" -%}
+            {% if field.name == "paste_content" or field.name == "captcha" -%}
             <div class="span12">
             {%- else -%}
             <div class="span6">
