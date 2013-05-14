@@ -7,7 +7,7 @@
 <link href="/static/favicon.ico" rel="icon">
 {% endblock %}
 {%- block title -%}
-{%- if form.title.data != None -%}{{ form.title.data }} - {%- endif -%}Sadbin - Pastebin for Sadmins
+{%- if form.title.data != None -%}{{ form.title.data }} - {% endif -%}Sadbin - Pastebin for Sadmins
 {%- endblock -%}
 {% block body %}
 {{- super() -}}
