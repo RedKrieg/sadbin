@@ -44,6 +44,10 @@ if 'MAX_TITLE_LENGTH' not in app.config:
     app.config['MAX_TITLE_LENGTH'] = 256
 if 'MAX_AUTHOR_LENGTH' not in app.config:
     app.config['MAX_AUTHOR_LENGTH'] = 256
+if 'MAX_LOGIN_LENGTH' not in app.config:
+    app.config['MAX_LOGIN_LENGTH'] = 256
+if 'MAX_PASSWORD_LENGTH' not in app.config:
+    app.config['MAX_PASSWORD_LENGTH'] = 256
 
 def get_lexer_list():
     """Iterator which yields the first lexer short-name and the lexer long
@@ -65,6 +69,7 @@ def get_duration_list():
         )
     yield (u'-1', "Never")
 
+# Forms
 class Paste(Form):
     title = TextField(
         u'Title:',
@@ -116,9 +121,9 @@ class LoginForm(Form):
         u'Login:',
         [   
             Length( 
-                max = app.config['MAX_TITLE_LENGTH'], 
-                message = u"Max title length is %d" % (
-                    app.config['MAX_TITLE_LENGTH']
+                max = app.config['MAX_LOGIN_LENGTH'], 
+                message = u"Max login length is %d" % (
+                    app.config['MAX_LOGIN_LENGTH']
                 )
             ),
             InputRequired(
@@ -146,6 +151,11 @@ class LoginForm(Form):
     captcha = RecaptchaField(
         u'Recaptcha:'
     )
+
+# User object
+class User(object):
+    def is_authenticated():
+        pass
 
 def save_paste(key, paste_data,
                language = u'none', title = u'', author = u'',
