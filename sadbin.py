@@ -3,7 +3,7 @@
 from hashlib import sha1
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.redis import Redis
-from flask.ext.login import LoginManager
+from flask.ext.login import LoginManager, UserMixin
 from flask.ext.login import login_user, login_required, logout_user
 from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField, SelectField
@@ -14,6 +14,7 @@ from pygments.lexers import guess_lexer, get_lexer_by_name, get_all_lexers
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 from humanize import naturalday, naturaltime
+from flask.ext.sqlalchemy import SQLAlchemy
 import flask, datetime
 
 # The next three lines of horror are to work around everything in Python2 being
@@ -34,6 +35,9 @@ Bootstrap(app)
 # Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+# Flask-SQLAlchemy
+db = SQLAlchemy(app)
 
 # Defaults
 if 'MAX_UPLOAD_SIZE' not in app.config:
@@ -116,6 +120,11 @@ class Paste(Form):
         ]
     )
 
+class CaptchaPaste(Paste):
+    captcha = RecaptchaField(
+        u'Recaptcha:'
+    )
+
 class LoginForm(Form):
     user_name = TextField(
         u'Login:',
@@ -153,9 +162,25 @@ class LoginForm(Form):
     )
 
 # User object
-class User(object):
-    def is_authenticated():
-        pass
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True)
+    active = db.Column(db.Boolean())
+    def __init__(self, email, active=True):
+        self.email = email
+        self.active = active
+    def __repr__(self):
+        return '<User %r>' % self.email
+    def get_id(self):
+        return unicode(self.id)
+    def is_active(self, set_status = None):
+        if set_status is not None:
+            self.active = set_status
+        return self.active
+    def is_anonymous(self):
+        return False
+    def is_authenticated(self):
+        return True
 
 def save_paste(key, paste_data,
                language = u'none', title = u'', author = u'',
@@ -229,7 +254,6 @@ def logout():
 
 @app.route(u'/', methods=('GET', 'POST'))
 @app.route(u'/<paste_hash>', methods=('GET', 'POST'))
-@login_required
 def get_hash(paste_hash = None):
     form = Paste()
     if form.validate_on_submit():

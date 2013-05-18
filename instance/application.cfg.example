@@ -2,6 +2,7 @@ SECRET_KEY = "AIP@#jnf0avhqn23$WFLKAHNSr0v8q2iobnlkanfsgv"
 BOOTSTRAP_USE_CDN = True
 REDIS_URL = 'redis://localhost:6379/1'
 MAX_UPLOAD_SIZE = 2**18 # 256KiB
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://user:pass@localhost/sadbin"
 RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = 
 RECAPTCHA_PRIVATE_KEY = 
