@@ -9,7 +9,8 @@ from flask.ext.login import logout_user, current_user
 from flask.ext.wtf import Form
 from flask.ext.wtf import RecaptchaField
 from wtforms import PasswordField, TextField, TextAreaField, SelectField
-from wtforms.validators import Length, InputRequired, NumberRange, Email
+from wtforms.validators import Length, InputRequired, NumberRange
+from wtforms.validators import Email, EqualTo
 from werkzeug.security import check_password_hash, generate_password_hash
 from pygments import highlight
 from pygments.lexers import guess_lexer, get_lexer_by_name, get_all_lexers
@@ -172,7 +173,7 @@ class RegisterForm(LoginForm):
             ),
             InputRequired(
                 message = u"You must enter a password."
-            )
+            ),
             EqualTo(
                 "password",
                 message = u"Passwords must match."
@@ -278,10 +279,11 @@ def login():
         # login and validate the user...
         user = User.query.filter_by(email=form.email.data).first()
         if user is None:
-            pass # User not found, find a way to show error here and render the
-                 # login form again
+            form.errors['email'].append("User not found!")
+            return render_template("base.html", form=form)
         if not check_password_hash(user.auth_hash, form.password.data):
-            pass # Password incorrect.  Bail with error in form.
+            form.errors['password'].append("Invalid Password!")
+            return render_template("base.html", form=form)
         login_user(user, remember=True)
         flash("Logged in successfully.")
         return flask.redirect(
