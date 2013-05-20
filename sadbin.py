@@ -4,11 +4,13 @@ from hashlib import sha1
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.redis import Redis
 from flask.ext.login import LoginManager, UserMixin
-from flask.ext.login import login_user, login_required, logout_user
+from flask.ext.login import login_user, login_required
+from flask.ext.login import logout_user, current_user
 from flask.ext.wtf import Form
-from wtforms import TextField, TextAreaField, SelectField
 from flask.ext.wtf import RecaptchaField
+from wtforms import PasswordField, TextField, TextAreaField, SelectField
 from wtforms.validators import Length, InputRequired, NumberRange, Email
+from werkzeug.security import check_password_hash, generate_password_hash
 from pygments import highlight
 from pygments.lexers import guess_lexer, get_lexer_by_name, get_all_lexers
 from pygments.formatters import HtmlFormatter
@@ -126,8 +128,8 @@ class CaptchaPaste(Paste):
     )
 
 class LoginForm(Form):
-    user_name = TextField(
-        u'Login:',
+    email = TextField(
+        u'Email:',
         [   
             Length( 
                 max = app.config['MAX_LOGIN_LENGTH'], 
@@ -143,7 +145,7 @@ class LoginForm(Form):
             )
         ]
     )
-    password = TextField(
+    password = PasswordField(
         u'Password:',
         [
             Length(
@@ -157,25 +159,48 @@ class LoginForm(Form):
             )
         ]
     )
+
+class RegisterForm(LoginForm):
+    password2 = TextField(
+        u'Password (again):',
+        [
+            Length(
+                max = app.config['MAX_PASSWORD_LENGTH'],
+                message = u"Max password length is %d" % (
+                    app.config['MAX_PASSWORD_LENGTH']
+                )
+            ),
+            InputRequired(
+                message = u"You must enter a password."
+            )
+            EqualTo(
+                "password",
+                message = u"Passwords must match."
+            )
+        ]
+    )
     captcha = RecaptchaField(
         u'Recaptcha:'
     )
+
 
 # User object
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True)
+    auth_hash = db.Column(db.String(256))
     active = db.Column(db.Boolean())
-    def __init__(self, email, active=True):
+    def __init__(self, email, auth_hash, active=True):
         self.email = email
         self.active = active
+        self.auth_hash = auth_hash
     def __repr__(self):
         return '<User %r>' % self.email
     def get_id(self):
         return unicode(self.id)
-    def is_active(self, set_status = None):
-        if set_status is not None:
-            self.active = set_status
+    def is_active(self, set_active = None):
+        if set_active is not None:
+            self.active = set_active
         return self.active
     def is_anonymous(self):
         return False
@@ -228,17 +253,36 @@ def fill_form_from_db(key, form):
 
 @login_manager.user_loader
 def load_user(user_id):
-    user = redis.hgetall(u"sadbin_user:%s" % user_id)
-    if len(user) == 0:
-        return None
-    return user
+    return User.query.filter_by(id=user_id).first()
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        password = form.password.data
+        email = form.email.data
+        auth_hash = generate_password_hash(password)
+        new_user = User(email, auth_hash)
+        db.session.add(new_user)
+        db.session.commit()
+        return flask.redirect(
+            flask.request.args.get("next") or
+            url_for("login")
+        )
+    return flask.render_template("base.html", form=form)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         # login and validate the user...
-        login_user(user)
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None:
+            pass # User not found, find a way to show error here and render the
+                 # login form again
+        if not check_password_hash(user.auth_hash, form.password.data):
+            pass # Password incorrect.  Bail with error in form.
+        login_user(user, remember=True)
         flash("Logged in successfully.")
         return flask.redirect(
             flask.request.args.get("next") or
@@ -255,7 +299,10 @@ def logout():
 @app.route(u'/', methods=('GET', 'POST'))
 @app.route(u'/<paste_hash>', methods=('GET', 'POST'))
 def get_hash(paste_hash = None):
-    form = Paste()
+    if current_user.is_anonymous():
+        form = CaptchaPaste()
+    else:
+        form = Paste()
     if form.validate_on_submit():
         paste_data = form.paste_content.data
         paste_title = form.title.data
