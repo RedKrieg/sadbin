@@ -162,7 +162,7 @@ class LoginForm(Form):
     )
 
 class RegisterForm(LoginForm):
-    password2 = TextField(
+    password2 = PasswordField(
         u'Password (again):',
         [
             Length(
