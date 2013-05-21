@@ -8,6 +8,9 @@
 .btn.btn-primary {
     width: 100%;
 }
+.is-padded {
+    padding-top: 1em;
+}
 body {
     background: #073642;
     color: #586e75;
