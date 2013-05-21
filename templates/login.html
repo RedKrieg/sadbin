@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "bootstrap_wtf.html" as wtf %}
+{%- block title -%}
+Sadbin - Pastebin for Sadmins
+{%- endblock -%}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="span12">
+            {{ message|safe }}
+        </div>
+        <form action="." method="post" class="form form-horizontal">
+            {{ form.hidden_tag() }}
+            {{ wtf.form_errors(form, 'only') }}
+            {%- for field in form %}
+            {% if not field|bootstrap_is_hidden_field %}
+            <div class="span12">
+                {{ wtf.horizontal_field(field) }}
+            </div>
+            {%- endif %}
+            {%- endfor %}
+            <div class="span12 form-actions">
+                <button name="submit" type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

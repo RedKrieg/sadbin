@@ -256,7 +256,7 @@ def fill_form_from_db(key, form):
 def load_user(user_id):
     return User.query.filter_by(id=user_id).first()
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register/', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
@@ -270,9 +270,9 @@ def register():
             flask.request.args.get("next") or
             url_for("login")
         )
-    return flask.render_template("base.html", form=form)
+    return flask.render_template("login.html", form=form)
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login/", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -280,17 +280,17 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None:
             form.errors['email'].append("User not found!")
-            return render_template("base.html", form=form)
+            return render_template("login.html", form=form)
         if not check_password_hash(user.auth_hash, form.password.data):
             form.errors['password'].append("Invalid Password!")
-            return render_template("base.html", form=form)
+            return render_template("login.html", form=form)
         login_user(user, remember=True)
         flash("Logged in successfully.")
         return flask.redirect(
             flask.request.args.get("next") or
             url_for("get_hash")
         )
-    return flask.render_template("base.html", form=form)
+    return flask.render_template("login.html", form=form)
 
 @app.route("/logout")
 @login_required
