@@ -260,6 +260,7 @@ def load_user(user_id):
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
+        db.create_all()
         password = form.password.data
         email = form.email.data
         auth_hash = generate_password_hash(password)
