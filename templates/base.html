@@ -16,7 +16,7 @@
         <div class="span12">
             {{ message|safe }}
         </div>
-        <form action="." method="post" class="form form-horizontal">
+        <form action="." method="post" class="form">
             {{ form.hidden_tag() }}
             {{ wtf.form_errors(form, 'only') }}
             {%- for field in form %}
@@ -24,13 +24,24 @@
             {% if field.name == "paste_content" or field.name == "captcha" -%}
             <div class="span12">
             {%- else -%}
-            <div class="span6">
+            <div class="span3">
             {%- endif -%}
-                {{ wtf.horizontal_field(field) }}
+                <div class="control-group {% if field.errors %}error{% endif %}">
+                    <div class="controls">
+                        {{field(placeholder = field.label.text)|safe}}
+                        {%- if field.errors %}
+                        {%- for error in field.errors %}
+                        <p class="help-block">{{error}}</p>
+                        {%- endfor %}
+                        {%- elif field.description -%}
+                        <p class="help-block">{{field.description|safe}}</p>
+                        {%- endif %}
+                    </div>
+                </div>
             </div>
             {%- endif %}
             {%- endfor %}
-            <div class="span12 form-actions">
+            <div class="span12">
                 <button name="submit" type="submit" class="btn btn-primary">Save</button>
             </div>
         </form>

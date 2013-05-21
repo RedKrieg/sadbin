@@ -79,7 +79,7 @@ def get_duration_list():
 # Forms
 class Paste(Form):
     title = TextField(
-        u'Title:',
+        u'Title',
         [
             Length(
                 max = app.config['MAX_TITLE_LENGTH'],
@@ -90,7 +90,7 @@ class Paste(Form):
         ]
     )
     author = TextField(
-        u'Author:',
+        u'Author',
         [
             Length(
                 max = app.config['MAX_AUTHOR_LENGTH'],
@@ -101,15 +101,15 @@ class Paste(Form):
         ]
     )
     language = SelectField(
-        u'Language:',
+        u'Language',
         choices = [ i for i in get_lexer_list() ]
     )
     expire_time = SelectField(
-        u'Expires:',
+        u'Expires',
         choices = [ i for i in get_duration_list() ]
     )
     paste_content = TextAreaField(
-        u'Paste Data:',
+        u'Paste Data',
         [
             Length(
                 max = app.config['MAX_UPLOAD_SIZE'],
@@ -125,12 +125,12 @@ class Paste(Form):
 
 class CaptchaPaste(Paste):
     captcha = RecaptchaField(
-        u'Recaptcha:'
+        u'Recaptcha'
     )
 
 class LoginForm(Form):
     email = TextField(
-        u'Email:',
+        u'Email',
         [   
             Length( 
                 max = app.config['MAX_LOGIN_LENGTH'], 
@@ -147,7 +147,7 @@ class LoginForm(Form):
         ]
     )
     password = PasswordField(
-        u'Password:',
+        u'Password',
         [
             Length(
                 max = app.config['MAX_PASSWORD_LENGTH'],
@@ -163,7 +163,7 @@ class LoginForm(Form):
 
 class RegisterForm(LoginForm):
     password2 = PasswordField(
-        u'Password (again):',
+        u'Password (again)',
         [
             Length(
                 max = app.config['MAX_PASSWORD_LENGTH'],
@@ -181,7 +181,7 @@ class RegisterForm(LoginForm):
         ]
     )
     captcha = RecaptchaField(
-        u'Recaptcha:'
+        u'Recaptcha'
     )
 
 

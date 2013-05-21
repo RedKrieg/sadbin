@@ -1,12 +1,12 @@
 .span12 textarea, .uneditable-input {
-    width: 970px;
+    width: 1155px;
     min-height: 370px;
 }
-.span6 input, .uneditable-input {
-    width: 370px;
+.span3 input, select {
+    width: 100%;
 }
-.span6 select {
-    width: 384px;
+.btn.btn-primary {
+    width: 100%;
 }
 body {
     background: #073642;
