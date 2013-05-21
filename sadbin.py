@@ -254,7 +254,10 @@ def fill_form_from_db(key, form):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.filter_by(id=user_id).first()
+    try:
+        return User.query.filter_by(id=user_id).first()
+    except:
+        return None
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
