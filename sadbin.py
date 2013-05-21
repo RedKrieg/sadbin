@@ -264,9 +264,13 @@ def register():
         password = form.password.data
         email = form.email.data
         auth_hash = generate_password_hash(password)
-        new_user = User(email, auth_hash)
-        db.session.add(new_user)
-        db.session.commit()
+        try:
+            new_user = User(email, auth_hash)
+            db.session.add(new_user)
+            db.session.commit()
+        except:
+            form.errors['email'].append("Address is already registered!")
+            return flask.render_template("login.html", form=form)
         return flask.redirect(
             flask.request.args.get("next") or
             url_for("login")
