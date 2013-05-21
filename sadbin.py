@@ -269,7 +269,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
         except:
-            form.errors['email'].append("Address is already registered!")
+            form.errors['email'] = [ "Address is already registered!" ]
             return flask.render_template("login.html", form=form)
         return flask.redirect(
             flask.request.args.get("next") or
