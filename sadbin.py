@@ -290,7 +290,7 @@ def login():
             form.password.errors.append("Invalid Password!")
             return flask.render_template("login.html", form=form)
         login_user(user, remember=True)
-        flash("Logged in successfully.")
+        flask.flash("Logged in successfully.")
         return flask.redirect(
             flask.request.args.get("next") or
             flask.url_for("get_hash")
