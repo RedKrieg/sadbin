@@ -273,7 +273,7 @@ def register():
             return flask.render_template("login.html", form=form)
         return flask.redirect(
             flask.request.args.get("next") or
-            url_for("login")
+            flask.url_for("login")
         )
     return flask.render_template("login.html", form=form)
 
