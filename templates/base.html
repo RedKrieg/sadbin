@@ -16,6 +16,8 @@
         <div class="span12">
             {{ message|safe }}
         </div>
+    </div>
+    <div class="row">
         <form action="." method="post" class="form">
             {{ form.hidden_tag() }}
             {{ wtf.form_errors(form, 'only') }}
@@ -46,5 +48,12 @@
             </div>
         </form>
     </div>
+{% block footer -%}
+    <div class="row">
+        <div class="span12">
+                &copy; 2013, The author.
+        </div>
+    </div>
+{%- endblock %}
 </div>
 {% endblock %}
