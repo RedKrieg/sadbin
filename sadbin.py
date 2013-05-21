@@ -284,16 +284,16 @@ def login():
         # login and validate the user...
         user = User.query.filter_by(email=form.email.data).first()
         if user is None:
-            form.errors['email'].append("User not found!")
+            form.email.errors.append("User not found!")
             return render_template("login.html", form=form)
         if not check_password_hash(user.auth_hash, form.password.data):
-            form.errors['password'].append("Invalid Password!")
+            form.password.errors.append("Invalid Password!")
             return render_template("login.html", form=form)
         login_user(user, remember=True)
         flash("Logged in successfully.")
         return flask.redirect(
             flask.request.args.get("next") or
-            url_for("get_hash")
+            flask.url_for("get_hash")
         )
     return flask.render_template("login.html", form=form)
 
