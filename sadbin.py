@@ -282,7 +282,10 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         # login and validate the user...
-        user = User.query.filter_by(email=form.email.data).first()
+        try:
+            user = User.query.filter_by(email=form.email.data).first()
+        except:
+            return flask.redirect(flask.url_for("register"))
         if user is None:
             form.email.errors.append("User not found!")
             return flask.render_template("login.html", form=form)
