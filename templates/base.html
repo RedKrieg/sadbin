@@ -11,7 +11,9 @@
 {%- endblock -%}
 {% block body %}
 {{- super() -}}
-<div class="container">
+<div class="container main">
+    <div class="pusher">
+    </div>
     <div class="row">
         <div class="span12">
             {{ message|safe }}
@@ -48,12 +50,16 @@
             </div>
         </form>
     </div>
-{% block footer -%}
-    <div class="row">
-        <div class="span12 text-right is-padded">
-                &copy; 2013, The author.
-        </div>
+    <div class="pusher">
     </div>
-{%- endblock %}
 </div>
+{% block footer -%}
+<div class="footer">
+    <div class="container text-right">
+        <p>
+        &copy; 2013, The author.
+        </p>
+    </div>
+</div>
+{%- endblock %}
 {% endblock %}

@@ -4,7 +4,9 @@
 Sadbin - Pastebin for Sadmins
 {%- endblock -%}
 {% block body %}
-<div class="container">
+<div class="container main">
+    <div class="pusher">
+    </div>
     <div class="row">
         <div class="span12">
             {{ message|safe }}
@@ -24,5 +26,10 @@ Sadbin - Pastebin for Sadmins
             </div>
         </form>
     </div>
+    <div class="pusher">
+    </div>
 </div>
+{% block footer -%}
+{{- super() -}}
+{%- endblock %}
 {% endblock %}

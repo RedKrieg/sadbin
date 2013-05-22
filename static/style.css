@@ -8,10 +8,20 @@
 .btn-wide {
     width: 100%;
 }
-.is-padded {
-    padding-top: 1em;
+html, body {
+    height: 100%;
+}
+.main {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -80px;
+}
+.footer, .pusher {
+    height: 60px;
 }
 body {
+    padding-top: 0px;
     background: #073642;
     color: #586e75;
     font-family: "monospace";
@@ -30,4 +40,3 @@ body {
 #recaptcha_table {
     background: #fdf6e3;
 }
-
