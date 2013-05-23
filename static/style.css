@@ -15,10 +15,10 @@ html, body {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin: 0 auto -121px;
+    margin: 0 auto -80px;
 }
 .footer, .pusher {
-    height: 60px;
+    height: 101px;
 }
 body {
     padding-top: 0px;
