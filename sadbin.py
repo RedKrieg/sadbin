@@ -273,12 +273,18 @@ def register():
             db.session.commit()
         except:
             form.email.errors.append("Address is already registered!")
-            return flask.render_template("login.html", form=form)
+            return flask.render_template("login.html",
+                                         form = form,
+                                         current_user = current_user
+                                         )
         return flask.redirect(
             flask.request.args.get("next") or
             flask.url_for("login")
         )
-    return flask.render_template("login.html", form=form)
+    return flask.render_template("login.html",
+                                 form = form,
+                                 current_user = current_user
+                                 )
 
 @app.route("/login/", methods=["GET", "POST"])
 def login():
@@ -291,17 +297,26 @@ def login():
             return flask.redirect(flask.url_for("register"))
         if user is None:
             form.email.errors.append("User not found!")
-            return flask.render_template("login.html", form=form)
+            return flask.render_template("login.html",
+                                         form = form,
+                                         current_user = current_user
+                                         )
         if not check_password_hash(user.auth_hash, form.password.data):
             form.password.errors.append("Invalid Password!")
-            return flask.render_template("login.html", form=form)
+            return flask.render_template("login.html",
+                                         form = form,
+                                         current_user = current_user
+                                         )
         login_user(user, remember=True)
         flask.flash("Logged in successfully.")
         return flask.redirect(
             flask.request.args.get("next") or
             flask.url_for("get_hash")
         )
-    return flask.render_template("login.html", form=form)
+    return flask.render_template("login.html",
+                                 form = form,
+                                 current_user = current_user
+                                 )
 
 @app.route("/logout")
 @login_required
@@ -350,13 +365,15 @@ def get_hash(paste_hash = None):
         return flask.render_template(
             'base.html',
             form = form,
-            message = highlight_content(u"Create a new paste!", u'text')
+            message = highlight_content(u"Create a new paste!", u'text'),
+            current_user = current_user
         )
     hilighted_data = highlight_content(form.paste_content.data)
     rendered_page = flask.render_template(
         'base.html',
         form = form,
-        message = hilighted_data
+        message = hilighted_data,
+        current_user = current_user
     )
     return rendered_page
 
